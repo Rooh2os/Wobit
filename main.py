@@ -71,13 +71,14 @@ while len(wordlist) > 1 and guess < 6:
                 print("Oops! Thats not a valid choice!\nPlease choose a valid option.")
                 inputword = None
     
-    for letter in inputword:
+    letter = 0
+    while letter < len(inputword):
         #Sterilize user input (Code most likely flawed)
         #Why cant humans just be perfect and put in the right numbers?
         gyg = None
         while gyg == None:  
             try:
-                print(f"\nThe current letter is '{letter}' in spot {inputword.index(letter)+1}.")
+                print(f"\nThe current letter is '{inputword[letter]}' in spot {letter + 1}.")
                 print("1: Grey; Letter is not in word\n2: Yellow; Letter is in word, but it's not in the right spot\n3: Green; Letter is in word, and it's in the right spot")
 
                 print("Choose an option")
@@ -115,7 +116,7 @@ while len(wordlist) > 1 and guess < 6:
             #   ├─ yes; remove the word then advance to the next word (ptr does not need to be increased as by removing a word the whole list gets shifted down making ptr relatively increased by 1)
             #   └─ no; move on to next word
             while ptr < len(wordlist):
-                if letter in wordlist[ptr]:
+                if inputword[letter] in wordlist[ptr]:
                     wordlist.remove(wordlist[ptr])
                 else:
                     ptr += 1
@@ -131,9 +132,9 @@ while len(wordlist) > 1 and guess < 6:
                 word = wordlist[ptr] #had to do this because py is picky. why cant i just do `wordlist[ptr].index` ?
                 
                 if config["debug"]["print debug logs"]:
-                    print(f"not letter in word or word.index: {not letter in word}")
+                    print(f"not letter in word or word.index: {not inputword[letter] in word}")
                     try:
-                        print(f"word.index(letter) == inputword.index(letter): {word.index(letter) == inputword.index(letter)}")
+                        print(f"word.index(letter) == inputword.index(letter): {word.index(inputword[letter]) == letter}")
                     except ValueError:
                         pass #ok to pass here, just debug code
                 
@@ -142,9 +143,7 @@ while len(wordlist) > 1 and guess < 6:
                 #   │   ├─ yes; remove word
                 #   │   └─ no; keep word and increment ptr (pointer)
                 #   └─ no; remove word
-                if not letter in word:
-                    wordlist.remove(word)
-                elif word.index(letter) == inputword.index(letter):
+                if (not inputword[letter] in word) or word[letter] == inputword[letter]:
                     wordlist.remove(word)
                 else:
                     ptr += 1
@@ -166,7 +165,7 @@ while len(wordlist) > 1 and guess < 6:
                 #   │   └─ no; remove word
                 #   └─ no; remove word
                 try:
-                    if word.index(letter) == inputword.index(letter):
+                    if word.index(inputword[letter]) == letter:
                         ptr += 1
                     else:
                         raise(ValueError)
@@ -178,6 +177,10 @@ while len(wordlist) > 1 and guess < 6:
             print(f"wordlist: {wordlist}")
 
             print(f"inputword in wordlist: {inputword in wordlist}")
+        
+        if config["debug"]["print nerd stats"] and len(wordlist) <= 100:
+            printlist(wordlist,"Remaining words:")
+        letter += 1
     guess += 1
 
 if len(wordlist) == 1:
