@@ -1,3 +1,5 @@
+import toml
+
 #Make wordle words list
 try:
     with open("wordle-words.txt","r") as file:
@@ -11,6 +13,27 @@ except(FileNotFoundError):
         data = file.read()
 
 wordlewords = data.split()
+
+#Make/get config
+try:
+    with open("config.toml","r") as file:
+        config = toml.load(file)
+
+except(FileNotFoundError):
+    print("Config not found.\nGenerating new config...")
+
+    config = {
+                "general": {
+                    "show only top word": True
+                },
+                "debug": {
+                    "print debug logs": False
+                }
+            }
+    with open("config.toml","w") as file:
+        toml.dump(config,file)
+    
+    print("New config generated.\nPlease look at the config, then restart the program to apply the settings.")
 
 #Intro
 print("Welcome to Wobit (don't ask where the name comes from)\nA Wordle bot developed by Rooh2os\n")

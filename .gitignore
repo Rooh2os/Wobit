@@ -1,5 +1,6 @@
 wordle-words.txt
 .vscode
+config.toml
 
 # Github auto gen
 # Byte-compiled / optimized / DLL files
