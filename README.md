@@ -1,2 +1,3 @@
 # Wobit
-Wordle bot. It does wordle!
+Wordle bot. 
+It does wordle!
