@@ -70,6 +70,14 @@ for guess in range(6):
             try:
                 print(f"The current letter is '{letter}'.")
                 gyg = int(input("1: Grey; Letter is not in word\n2: Yellow; Letter is in word, but it's not in the right spot\n3: Green; Letter is in word, and it's in the right spot\nChoose an option\n"))
+
+                #Looks like this:
+                #The current letter is 'a'.
+                #1: Grey; Letter is not in word
+                #2: Yellow; Letter is in word, but it's not in the right spot
+                #3: Green; Letter is in word, and it's in the right spot
+                #Choose an option
+
                 if gyg > 3 or gyg < 1:
                     raise(TypeError)
             except(TypeError,ValueError):
