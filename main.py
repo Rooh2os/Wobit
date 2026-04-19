@@ -1,5 +1,10 @@
 import toml
 
+def printlist(list:list,prefix:str=""):
+    print(prefix)
+    for item in list:
+        print(f"{list.index(item)+1}. {item}")
+
 #Make wordle words list
 try:
     with open("wordle-words.txt","r") as file:
@@ -29,6 +34,7 @@ except FileNotFoundError:
                     "custom starting word": "crane"
                 },
                 "debug": {
+                    "print nerd stats": False,
                     "print debug logs": False
                 }
             }
@@ -42,18 +48,18 @@ print("Welcome to Wobit (don't ask where the name comes from)\nA Wordle bot deve
 
 #Main loop
 
-for guess in range(6):
+guess = 1
+while len(wordlist) > 1 and guess < 6:
     #DEBUG; prints the wordlist after every word
     if config["debug"]["print debug logs"]:
         print(wordlist)
     
     #Use the config to determine whether to give the user the choice of the word or choose it automagicly
     if config["general"]["show only top word"]:
-        print(f"Current top word: {wordlist[0]}")
+        print(f"\nCurrent top word: {wordlist[0]}\nRemaining words: {len(wordlist)}")
         inputword = wordlist[0]
     else:
-        #This print will be replaced by a printlist function
-        print(f"Current wordlist:\n{wordlist}")
+        printlist(wordlist,"\nCurrent valid words list:")
         #Sterilize user input
         inputword = None
         while inputword == None:
@@ -69,13 +75,20 @@ for guess in range(6):
         #Sterilize user input (Code most likely flawed)
         #Why cant humans just be perfect and put in the right numbers?
         gyg = None
-        while gyg == None:
+        while gyg == None:  
             try:
-                print(f"The current letter is '{letter}'.")
-                gyg = int(input("1: Grey; Letter is not in word\n2: Yellow; Letter is in word, but it's not in the right spot\n3: Green; Letter is in word, and it's in the right spot\nChoose an option\n"))
+                print(f"\nThe current letter is '{letter}' in spot {inputword.index(letter)+1}.")
+                print("1: Grey; Letter is not in word\n2: Yellow; Letter is in word, but it's not in the right spot\n3: Green; Letter is in word, and it's in the right spot")
+
+                print("Choose an option")
+
+                gyg = int(input())
+                
+
 
                 #Looks like this:
-                #The current letter is 'a'.
+                #
+                #The current letter is 'x' in spot y.
                 #1: Grey; Letter is not in word
                 #2: Yellow; Letter is in word, but it's not in the right spot
                 #3: Green; Letter is in word, and it's in the right spot
@@ -94,8 +107,8 @@ for guess in range(6):
         if gyg == 1: #Grey letter removal
             ptr = 0
             
-            if config["debug"]["print debug logs"]:
-                print(len(wordlist)) #debug please tell me what I did this time
+            if config["debug"]["print nerd stats"]:
+                print(f"wordlist length: {len(wordlist)}") #debug please tell me what I did this time
             
 
             #Check if the letter is in the word
@@ -107,7 +120,7 @@ for guess in range(6):
                 else:
                     ptr += 1
     
-                if config["debug"]["print debug logs"]: #debug oh, debug. please solve my problems mr. debug
+                if config["debug"]["print nerd stats"]: #debug oh, debug. please solve my problems mr. debug
                     print(f"ptr: {ptr}")
                     print(f"wordlist len: {len(wordlist)}")
 
@@ -136,15 +149,40 @@ for guess in range(6):
                 else:
                     ptr += 1
                 
-                if config["debug"]["print debug logs"]:
+                if config["debug"]["print nerd stats"]:
                     #print(f"wordlist: {wordlist}") #need to debug the debug
                     print(f"ptr: {ptr}")
                     print(f"wordlist len: {len(wordlist)}")
                     
-        else:
-            pass #temp
+        elif gyg == 3: #Green letters
+
+            ptr = 0
+            while ptr < len(wordlist):
+                word = wordlist[ptr]
+
+                #Check if letter in word
+                #   ├─ yes; check if letter is in the same spot as it is in word
+                #   │   ├─ yes; increment ptr
+                #   │   └─ no; remove word
+                #   └─ no; remove word
+                try:
+                    if word.index(letter) == inputword.index(letter):
+                        ptr += 1
+                    else:
+                        raise(ValueError)
+                except ValueError:
+                    wordlist.remove(word)
         
+            
         if config["debug"]["print debug logs"]: #I should stop debugging and just write better code
             print(f"wordlist: {wordlist}")
 
             print(f"inputword in wordlist: {inputword in wordlist}")
+    guess += 1
+
+if len(wordlist) == 1:
+    print("Congrats on beating Wordle!")
+else:
+    print("Sorry I let you down ☹")
+
+printlist(wordlist,"Final valid words:")
