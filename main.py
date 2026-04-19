@@ -5,12 +5,12 @@ try:
     with open("wordle-words.txt","r") as file:
         data = file.read()
 
-except(FileNotFoundError):
+except FileNotFoundError:
     import requests
     data = requests.get("https://gist.githubusercontent.com/dracos/dd0668f281e685bad51479e5acaadb93/raw/6bfa15d263d6d5b63840a8e5b64e04b382fdb079/valid-wordle-words.txt")
     with open("wordle-words.txt","w") as file:
         file.write(data.text)
-        data = file.read()
+        data = data.text
 
 wordlist = data.split()
 
@@ -19,12 +19,14 @@ try:
     with open("config.toml","r") as file:
         config = toml.load(file)
 
-except(FileNotFoundError):
+except FileNotFoundError:
     print("Config not found.\nGenerating new config...")
 
     config = {
                 "general": {
-                    "show only top word": True
+                    "show only top word": True,
+                    "use custom starting word": False, #this will eventually be implemented when main logic is done
+                    "custom starting word": "crane"
                 },
                 "debug": {
                     "print debug logs": False
@@ -50,6 +52,7 @@ for guess in range(6):
         print(f"Current top word: {wordlist[0]}")
         inputword = wordlist[0]
     else:
+        #This print will be replaced by a printlist function
         print(f"Current wordlist:\n{wordlist}")
         #Sterilize user input
         inputword = None
@@ -58,7 +61,7 @@ for guess in range(6):
                 inputword = input("What word did you use?\n")
                 if inputword not in wordlist:
                     raise(ValueError)
-            except(ValueError,TypeError):
+            except (ValueError,TypeError):
                 print("Oops! Thats not a valid choice!\nPlease choose a valid option.")
                 inputword = None
     
@@ -80,17 +83,68 @@ for guess in range(6):
 
                 if gyg > 3 or gyg < 1:
                     raise(TypeError)
-            except(TypeError,ValueError):
+            except (TypeError,ValueError):
                 print("Oops! Thats not a valid choice!\nPlease choose a valid option.")
                 gyg = None
         
         #Var name 'gyg' means 'green yellow gray' representing the 3 options the user can choose from
 
         #Logic for bot; does word removal based on gyg input
-        #temp placeholder code until i get off my bum and actually write it
-        if gyg == 1:
-            pass
-        elif gyg ==2:
-            pass
+
+        if gyg == 1: #Grey letter removal
+            ptr = 0
+            
+            if config["debug"]["print debug logs"]:
+                print(len(wordlist)) #debug please tell me what I did this time
+            
+
+            #Check if the letter is in the word
+            #   ├─ yes; remove the word then advance to the next word (ptr does not need to be increased as by removing a word the whole list gets shifted down making ptr relatively increased by 1)
+            #   └─ no; move on to next word
+            while ptr < len(wordlist):
+                if letter in wordlist[ptr]:
+                    wordlist.remove(wordlist[ptr])
+                else:
+                    ptr += 1
+    
+                if config["debug"]["print debug logs"]: #debug oh, debug. please solve my problems mr. debug
+                    print(f"ptr: {ptr}")
+                    print(f"wordlist len: {len(wordlist)}")
+
+        elif gyg ==2: #Yellow letter semi-removal
+
+            ptr = 0
+            while ptr < len(wordlist):
+                word = wordlist[ptr] #had to do this because py is picky. why cant i just do `wordlist[ptr].index` ?
+                
+                if config["debug"]["print debug logs"]:
+                    print(f"not letter in word or word.index: {not letter in word}")
+                    try:
+                        print(f"word.index(letter) == inputword.index(letter): {word.index(letter) == inputword.index(letter)}")
+                    except ValueError:
+                        pass #ok to pass here, just debug code
+                
+                #Check if letter is in word
+                #   ├─ yes; check if letter is in the same spot as the yellow letter
+                #   │   ├─ yes; remove word
+                #   │   └─ no; keep word and increment ptr (pointer)
+                #   └─ no; remove word
+                if not letter in word:
+                    wordlist.remove(word)
+                elif word.index(letter) == inputword.index(letter):
+                    wordlist.remove(word)
+                else:
+                    ptr += 1
+                
+                if config["debug"]["print debug logs"]:
+                    #print(f"wordlist: {wordlist}") #need to debug the debug
+                    print(f"ptr: {ptr}")
+                    print(f"wordlist len: {len(wordlist)}")
+                    
         else:
-            pass
+            pass #temp
+        
+        if config["debug"]["print debug logs"]: #I should stop debugging and just write better code
+            print(f"wordlist: {wordlist}")
+
+            print(f"inputword in wordlist: {inputword in wordlist}")
