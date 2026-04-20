@@ -35,7 +35,7 @@ def process_yellow(wordlist:list,inputword:str,letter:int):
     
     return(wordlist)
 
-def process_green(wordlist:list,inputword:str):
+def process_green(wordlist:list,inputword:str,letter):
     ptr = 0
     while ptr < len(wordlist):
         word = wordlist[ptr]
@@ -45,12 +45,9 @@ def process_green(wordlist:list,inputword:str):
         #   │   ├─ yes; increment ptr
         #   │   └─ no; remove word
         #   └─ no; remove word
-        try:
-            if word.index(inputword[letter]) == letter:
-                ptr += 1
-            else:
-                raise(ValueError)
-        except ValueError:
+        if word[letter] == inputword[letter]:
+            ptr += 1
+        else:
             wordlist.remove(word)
     return(wordlist)
 
@@ -140,21 +137,7 @@ while len(wordlist) > 1 and guess < 6:
                 
         elif gyg == 3: #Green letters
 
-            ptr = 0
-            while ptr < len(wordlist):
-                word = wordlist[ptr]
-
-                #Check if letter in word
-                #   ├─ yes; check if letter is in the same spot as it is in word
-                #   │   ├─ yes; increment ptr
-                #   │   └─ no; remove word
-                #   └─ no; remove word
-                if word[letter] == inputword[letter]:
-                    ptr += 1
-                else:
-                    wordlist.remove(word)
-        
-            
+            process_green(wordlist,inputword,letter)
         letter += 1
     guess += 1
 
