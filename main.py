@@ -164,12 +164,9 @@ while len(wordlist) > 1 and guess < 6:
                 #   │   ├─ yes; increment ptr
                 #   │   └─ no; remove word
                 #   └─ no; remove word
-                try:
-                    if word.index(inputword[letter]) == letter:
-                        ptr += 1
-                    else:
-                        raise(ValueError)
-                except ValueError:
+                if word[letter] == inputword[letter]:
+                    ptr += 1
+                else:
                     wordlist.remove(word)
         
             
