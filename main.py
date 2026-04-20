@@ -33,10 +33,6 @@ except FileNotFoundError:
                     "use custom starting word": False, #this will eventually be implemented when main logic is done
                     "custom starting word": "crane"
                 },
-                "debug": {
-                    "print nerd stats": False,
-                    "print debug logs": False
-                }
             }
     with open("config.toml","w") as file:
         toml.dump(config,file)
@@ -50,9 +46,6 @@ print("Welcome to Wobit (don't ask where the name comes from)\nA Wordle bot deve
 
 guess = 1
 while len(wordlist) > 1 and guess < 6:
-    #DEBUG; prints the wordlist after every word
-    if config["debug"]["print debug logs"]:
-        print(wordlist)
     
     #Use the config to determine whether to give the user the choice of the word or choose it automagicly
     if config["general"]["show only top word"]:
@@ -107,10 +100,6 @@ while len(wordlist) > 1 and guess < 6:
 
         if gyg == 1: #Grey letter removal
             ptr = 0
-            
-            if config["debug"]["print nerd stats"]:
-                print(f"wordlist length: {len(wordlist)}") #debug please tell me what I did this time
-            
 
             #Check if the letter is in the word
             #   ├─ yes; remove the word then advance to the next word (ptr does not need to be increased as by removing a word the whole list gets shifted down making ptr relatively increased by 1)
@@ -120,23 +109,12 @@ while len(wordlist) > 1 and guess < 6:
                     wordlist.remove(wordlist[ptr])
                 else:
                     ptr += 1
-    
-                if config["debug"]["print nerd stats"]: #debug oh, debug. please solve my problems mr. debug
-                    print(f"ptr: {ptr}")
-                    print(f"wordlist len: {len(wordlist)}")
 
         elif gyg ==2: #Yellow letter semi-removal
 
             ptr = 0
             while ptr < len(wordlist):
                 word = wordlist[ptr] #had to do this because py is picky. why cant i just do `wordlist[ptr].index` ?
-                
-                if config["debug"]["print debug logs"]:
-                    print(f"not letter in word or word.index: {not inputword[letter] in word}")
-                    try:
-                        print(f"word.index(letter) == inputword.index(letter): {word.index(inputword[letter]) == letter}")
-                    except ValueError:
-                        pass #ok to pass here, just debug code
                 
                 #Check if letter is in word
                 #   ├─ yes; check if letter is in the same spot as the yellow letter
@@ -148,11 +126,6 @@ while len(wordlist) > 1 and guess < 6:
                 else:
                     ptr += 1
                 
-                if config["debug"]["print nerd stats"]:
-                    #print(f"wordlist: {wordlist}") #need to debug the debug
-                    print(f"ptr: {ptr}")
-                    print(f"wordlist len: {len(wordlist)}")
-                    
         elif gyg == 3: #Green letters
 
             ptr = 0
@@ -172,14 +145,7 @@ while len(wordlist) > 1 and guess < 6:
                 except ValueError:
                     wordlist.remove(word)
         
-            
-        if config["debug"]["print debug logs"]: #I should stop debugging and just write better code
-            print(f"wordlist: {wordlist}")
-
             print(f"inputword in wordlist: {inputword in wordlist}")
-        
-        if config["debug"]["print nerd stats"] and len(wordlist) <= 100:
-            printlist(wordlist,"Remaining words:")
         letter += 1
     guess += 1
 
