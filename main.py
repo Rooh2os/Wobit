@@ -139,6 +139,21 @@ while len(wordlist) > 1 and guess < 6:
             process_yellow(wordlist,inputword,letter)
                 
         elif gyg == 3: #Green letters
+
+            ptr = 0
+            while ptr < len(wordlist):
+                word = wordlist[ptr]
+
+                #Check if letter in word
+                #   ├─ yes; check if letter is in the same spot as it is in word
+                #   │   ├─ yes; increment ptr
+                #   │   └─ no; remove word
+                #   └─ no; remove word
+                if word[letter] == inputword[letter]:
+                    ptr += 1
+                else:
+                    wordlist.remove(word)
+        
             
         letter += 1
     guess += 1
