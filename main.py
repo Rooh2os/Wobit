@@ -5,6 +5,55 @@ def printlist(list:list,prefix:str=""):
     for item in list:
         print(f"{list.index(item)+1}. {item}")
 
+def process_grey(wordlist:list,inputword:str):
+    ptr = 0
+
+    #Check if the letter is in the word
+    #   ├─ yes; remove the word then advance to the next word (ptr does not need to be increased as by removing a word the whole list gets shifted down making ptr relatively increased by 1)
+    #   └─ no; move on to next word
+    while ptr < len(wordlist):
+        if inputword[letter] in wordlist[ptr]:
+            wordlist.remove(wordlist[ptr])
+        else:
+            ptr += 1
+    return(wordlist)
+
+def process_yellow(wordlist:list,inputword:str,letter:int):
+    ptr = 0
+    while ptr < len(wordlist):
+        word = wordlist[ptr] #had to do this because py is picky. why cant i just do `wordlist[ptr].index` ?
+        
+        #Check if letter is in word
+        #   ├─ yes; check if letter is in the same spot as the yellow letter
+        #   │   ├─ yes; remove word
+        #   │   └─ no; keep word and increment ptr (pointer)
+        #   └─ no; remove word
+        if (not inputword[letter] in word) or word[letter] == inputword[letter]:
+            wordlist.remove(word)
+        else:
+            ptr += 1
+    
+    return(wordlist)
+
+def process_green(wordlist:list,inputword:str):
+    ptr = 0
+    while ptr < len(wordlist):
+        word = wordlist[ptr]
+
+        #Check if letter in word
+        #   ├─ yes; check if letter is in the same spot as it is in word
+        #   │   ├─ yes; increment ptr
+        #   │   └─ no; remove word
+        #   └─ no; remove word
+        try:
+            if word.index(inputword[letter]) == letter:
+                ptr += 1
+            else:
+                raise(ValueError)
+        except ValueError:
+            wordlist.remove(word)
+    return(wordlist)
+
 #Make wordle words list
 try:
     with open("wordle-words.txt","r") as file:
@@ -30,8 +79,6 @@ except FileNotFoundError:
     config = {
                 "general": {
                     "show only top word": True,
-                    "use custom starting word": False, #this will eventually be implemented when main logic is done
-                    "custom starting word": "crane"
                 },
             }
     with open("config.toml","w") as file:
@@ -46,23 +93,9 @@ print("Welcome to Wobit (don't ask where the name comes from)\nA Wordle bot deve
 
 guess = 1
 while len(wordlist) > 1 and guess < 6:
-    
-    #Use the config to determine whether to give the user the choice of the word or choose it automagicly
-    if config["general"]["show only top word"]:
-        print(f"\nCurrent top word: {wordlist[0]}\nRemaining words: {len(wordlist)}")
-        inputword = wordlist[0]
-    else:
-        printlist(wordlist,"\nCurrent valid words list:")
-        #Sterilize user input
-        inputword = None
-        while inputword == None:
-            try:
-                inputword = input("What word did you use?\n")
-                if inputword not in wordlist:
-                    raise(ValueError)
-            except (ValueError,TypeError):
-                print("Oops! Thats not a valid choice!\nPlease choose a valid option.")
-                inputword = None
+
+    print(f"\nCurrent top word: {wordlist[0]}\nRemaining words: {len(wordlist)}")
+    inputword = wordlist[0]
     
     letter = 0
     while letter < len(inputword):
@@ -99,53 +132,14 @@ while len(wordlist) > 1 and guess < 6:
         #Logic for bot; does word removal based on gyg input
 
         if gyg == 1: #Grey letter removal
-            ptr = 0
-
-            #Check if the letter is in the word
-            #   ├─ yes; remove the word then advance to the next word (ptr does not need to be increased as by removing a word the whole list gets shifted down making ptr relatively increased by 1)
-            #   └─ no; move on to next word
-            while ptr < len(wordlist):
-                if inputword[letter] in wordlist[ptr]:
-                    wordlist.remove(wordlist[ptr])
-                else:
-                    ptr += 1
+            wordlist = process_grey(wordlist,inputword)
 
         elif gyg ==2: #Yellow letter semi-removal
 
-            ptr = 0
-            while ptr < len(wordlist):
-                word = wordlist[ptr] #had to do this because py is picky. why cant i just do `wordlist[ptr].index` ?
-                
-                #Check if letter is in word
-                #   ├─ yes; check if letter is in the same spot as the yellow letter
-                #   │   ├─ yes; remove word
-                #   │   └─ no; keep word and increment ptr (pointer)
-                #   └─ no; remove word
-                if (not inputword[letter] in word) or word[letter] == inputword[letter]:
-                    wordlist.remove(word)
-                else:
-                    ptr += 1
+            process_yellow(wordlist,inputword,letter)
                 
         elif gyg == 3: #Green letters
-
-            ptr = 0
-            while ptr < len(wordlist):
-                word = wordlist[ptr]
-
-                #Check if letter in word
-                #   ├─ yes; check if letter is in the same spot as it is in word
-                #   │   ├─ yes; increment ptr
-                #   │   └─ no; remove word
-                #   └─ no; remove word
-                try:
-                    if word.index(inputword[letter]) == letter:
-                        ptr += 1
-                    else:
-                        raise(ValueError)
-                except ValueError:
-                    wordlist.remove(word)
-        
-            print(f"inputword in wordlist: {inputword in wordlist}")
+            
         letter += 1
     guess += 1
 
